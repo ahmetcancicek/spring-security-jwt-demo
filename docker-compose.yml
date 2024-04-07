@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  mysql:
+    container_name: authdemo_mysql
+    image: "mysql:8.3.0"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./docs/ddl:/docker-entrypoint-initdb.d
+      - db_authdemo:/var/lib/mysql
+
+volumes:
+  db_authdemo:
