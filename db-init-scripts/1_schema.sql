@@ -104,20 +104,3 @@ CREATE TABLE IF NOT EXISTS password_reset_token
     CONSTRAINT uc_password_reset_token_token UNIQUE (token),
     CONSTRAINT fk_password_reset_token_on_users FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = INNODB;
-
-CREATE TABLE mobile_device_seq
-(
-    next_val BIGINT NULL
-) ENGINE = INNODB;
-
-CREATE TABLE mobile_device
-(
-    id          BIGINT                                          NOT NULL,
-    created_at  datetime                                        NOT NULL,
-    updated_at  datetime                                        NULL,
-    device_id   VARCHAR(255)                                    NOT NULL,
-    user_id     BIGINT                                          NOT NULL,
-    device_type enum ('DEVICE_TYPE_ANDROID', 'DEVICE_TYPE_IOS') NOT NULL,
-    CONSTRAINT pk_mobile_device PRIMARY KEY (id),
-    CONSTRAINT fk_mobile_device_on_users FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE = INNODB;
