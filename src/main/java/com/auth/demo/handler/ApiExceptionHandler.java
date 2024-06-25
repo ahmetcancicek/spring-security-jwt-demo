@@ -6,6 +6,8 @@ import com.auth.demo.response.Response;
 import com.auth.demo.exception.AlreadyExistsException;
 import com.auth.demo.exception.BusinessException;
 import com.auth.demo.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ApiExceptionHandler extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
     private final MessageSource messageSource;
 
     public ApiExceptionHandler(MessageSource messageSource) {
@@ -31,6 +35,7 @@ public class ApiExceptionHandler extends BaseController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Response<ErrorResponse> handleException(Exception exception, Locale locale) {
+        logger.error("An error occurred!: ", exception);
         return createErrorResponseFromMessageSource("system.error.occurred", locale);
     }
 
