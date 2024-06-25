@@ -39,6 +39,10 @@ public class Role {
         this.name = role;
     }
 
+    public boolean isAdminRole() {
+        return this.name.equals(RoleName.ROLE_ADMIN);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
