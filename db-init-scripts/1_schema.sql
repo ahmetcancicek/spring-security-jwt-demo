@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS role
     CONSTRAINT uc_role_name UNIQUE (name)
 ) ENGINE = INNODB;
 
+CREATE TABLE users_roles_seq
+(
+    next_val BIGINT NULL
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS users_roles
 (
     id      BIGINT AUTO_INCREMENT NOT NULL,
