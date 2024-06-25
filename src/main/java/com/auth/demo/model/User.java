@@ -2,17 +2,14 @@ package com.auth.demo.model;
 
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity {
 
     @Id
     @Column(name = "id")
@@ -52,40 +49,6 @@ public class User extends BaseEntity implements UserDetails {
         super();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return getActive();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getEmailVerified();
-    }
 
     public void setId(Long id) {
         this.id = id;
@@ -107,8 +70,16 @@ public class User extends BaseEntity implements UserDetails {
         this.username = username;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getFirstName() {
