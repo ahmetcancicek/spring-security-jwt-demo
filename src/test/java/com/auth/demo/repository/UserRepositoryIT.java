@@ -12,7 +12,7 @@ class UserRepositoryIT extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Test
     public void whenSave_thenReturnSavedUser() {
         User user = createUser();
@@ -141,6 +141,32 @@ class UserRepositoryIT extends AbstractIntegrationTest {
 
         // when
         boolean expected = userRepository.existsByUsername(user.getUsername());
+
+        // then
+        assertThat(expected).isTrue();
+    }
+
+    @Test
+    public void whenExistsByEmailAndIdNot_thenReturnTrue() {
+        // given
+        User user = createUser();
+        testEntityManager.persist(user);
+
+        // when
+        boolean expected = userRepository.existsByEmailAndIdNot(user.getEmail(), 1200L);
+
+        // then
+        assertThat(expected).isTrue();
+    }
+
+    @Test
+    public void whenExistsByUsernameAndIdNot_thenReturnTrue() {
+        // given
+        User user = createUser();
+        testEntityManager.persist(user);
+
+        // when
+        boolean expected = userRepository.existsByUsernameAndIdNot(user.getUsername(), 1200L);
 
         // then
         assertThat(expected).isTrue();
