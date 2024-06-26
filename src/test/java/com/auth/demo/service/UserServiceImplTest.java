@@ -167,4 +167,26 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).existsById(any(Long.class));
         assertThat(result).isFalse();
     }
+
+    @Test
+    public void givenExistingEmailButNotExistingId_whenIsEmailExistsAndUserIdNotExists_thenReturnTrue() {
+        User user = UserBuilder.generate().build();
+        given(userRepository.existsByEmailAndIdNot(any(String.class), any(Long.class))).willReturn(true);
+
+        boolean expected = userService.isEmailExistsAndUserIdNotExists(user.getEmail(), 1200L);
+
+        verify(userRepository, times(1)).existsByEmailAndIdNot(any(String.class), any(Long.class));
+        assertThat(expected).isTrue();
+    }
+
+    @Test
+    public void givenExistingUsernameButNotExistingId_whenIsUsernameExistsAndUserIdNotExists_thenReturnTrue() {
+        User user = UserBuilder.generate().build();
+        given(userRepository.existsByUsernameAndIdNot(any(String.class), any(Long.class))).willReturn(true);
+
+        boolean expected = userService.isUsernameExistsAndUserIdNotExists(user.getUsername(), 1200L);
+
+        verify(userRepository, times(1)).existsByUsernameAndIdNot(any(String.class), any(Long.class));
+        assertThat(expected).isTrue();
+    }
 }
