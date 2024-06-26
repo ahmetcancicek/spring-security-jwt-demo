@@ -1,9 +1,15 @@
 package com.auth.demo.service;
 
+import com.auth.demo.converter.UserConverter;
+import com.auth.demo.dto.ProfileRequest;
+import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.exception.BusinessException;
 import com.auth.demo.model.User;
 import com.auth.demo.repository.UserRepository;
+import com.auth.demo.security.AuthenticatedUser;
+import com.auth.demo.util.ProfileRequestBuilder;
 import com.auth.demo.util.UserBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,17 +21,26 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @InjectMocks
     private UserServiceImpl userService;
 
-    @Mock
+    private UserConverter userConverter;
+
     private UserRepository userRepository;
+
+    private RoleService roleService;
+
+    @BeforeEach
+    void setUp() {
+        userConverter = new UserConverter();
+        userRepository = mock(UserRepository.class);
+        roleService = mock(RoleService.class);
+        userService = new UserServiceImpl(userRepository, roleService, userConverter);
+    }
 
     @Test
     public void givenValidUsername_whenFindByUsername_thenReturnUser() {
@@ -188,5 +203,43 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).existsByUsernameAndIdNot(any(String.class), any(Long.class));
         assertThat(expected).isTrue();
+    }
+
+    @Test
+    public void givenExistingUser_whenGetProfile_thenReturnUserProfile() {
+        User user = UserBuilder.generate().build();
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+        given(userRepository.findByUsername(any(String.class))).willReturn(Optional.of(user));
+
+        ProfileResponse profile = userService.getProfile(authenticatedUser);
+
+        verify(userRepository, times(1)).findByUsername(any(String.class));
+        assertThat(profile.email()).isEqualTo(user.getEmail());
+        assertThat(profile.username()).isEqualTo(user.getUsername());
+        assertThat(profile.firstName()).isEqualTo(user.getFirstName());
+        assertThat(profile.lastName()).isEqualTo(user.getLastName());
+    }
+
+    @Test
+    public void givenExistingUser_whenUpdateProfile_thenReturnSavedProfile() {
+        User user = UserBuilder.generate().build();
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+        ProfileRequest profileRequest = ProfileRequestBuilder
+                .generate()
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .build();
+
+        given(userRepository.findByUsername(any(String.class))).willReturn(Optional.of(user));
+        given(userRepository.save(any(User.class))).willReturn(user);
+
+        ProfileResponse profile = userService.updateProfile(authenticatedUser, profileRequest);
+
+        verify(userRepository, times(1)).findByUsername(any(String.class));
+        verify(userRepository, times(1)).save(any(User.class));
+        assertThat(profile.email()).isEqualTo(user.getEmail());
+        assertThat(profile.username()).isEqualTo(user.getUsername());
+        assertThat(profile.firstName()).isEqualTo(user.getFirstName());
+        assertThat(profile.lastName()).isEqualTo(user.getLastName());
     }
 }
