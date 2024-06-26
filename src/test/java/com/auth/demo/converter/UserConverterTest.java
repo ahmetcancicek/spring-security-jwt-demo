@@ -1,5 +1,6 @@
 package com.auth.demo.converter;
 
+import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.dto.RegisterRequest;
 import com.auth.demo.dto.RegisterResponse;
 import com.auth.demo.model.User;
@@ -46,5 +47,17 @@ class UserConverterTest {
         assertThat(registerResponse.active()).isEqualTo(user.getActive());
         assertThat(registerResponse.firstName()).isEqualTo(user.getFirstName());
         assertThat(registerResponse.lastName()).isEqualTo(user.getLastName());
+    }
+
+    @Test
+    public void givenUser_whenFromUserToProfileResponse_thenReturnProfileResponse() {
+        User user = UserBuilder.generate().build();
+
+        ProfileResponse profileResponse = userConverter.fromUserToProfileResponse(user);
+
+        assertThat(profileResponse.email()).isEqualTo(user.getEmail());
+        assertThat(profileResponse.username()).isEqualTo(user.getUsername());
+        assertThat(profileResponse.firstName()).isEqualTo(user.getFirstName());
+        assertThat(profileResponse.lastName()).isEqualTo(user.getLastName());
     }
 }

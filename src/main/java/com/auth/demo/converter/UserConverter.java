@@ -1,5 +1,6 @@
 package com.auth.demo.converter;
 
+import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.dto.RegisterRequest;
 import com.auth.demo.dto.RegisterResponse;
 import com.auth.demo.model.User;
@@ -19,7 +20,10 @@ public class UserConverter {
     }
 
     public RegisterResponse fromUserToRegisterResponse(User user) {
-        RegisterResponse registerResponse = new RegisterResponse(user.getEmail(), user.getUsername(), user.getEmailVerified(), user.getActive(), user.getFirstName(), user.getLastName());
-        return registerResponse;
+        return new RegisterResponse(user.getEmail(), user.getUsername(), user.getEmailVerified(), user.getActive(), user.getFirstName(), user.getLastName());
+    }
+
+    public ProfileResponse fromUserToProfileResponse(User user) {
+        return new ProfileResponse(user.getEmail(), user.getUsername(), user.getFirstName(), user.getLastName());
     }
 }
