@@ -1,26 +1,20 @@
 package com.auth.demo.repository;
 
+import com.auth.demo.config.AuthMySQLContainer;
 import com.auth.demo.model.User;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.MySQLContainer;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@ExtendWith(SpringExtension.class)
+@ActiveProfiles("integration")
 @DataJpaTest
 @Testcontainers
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class AbstractIntegrationTest {
 
@@ -29,23 +23,12 @@ public class AbstractIntegrationTest {
 
     private User user;
 
+    @Container
+    private static final AuthMySQLContainer container = AuthMySQLContainer
+            .getInstance();
+
     protected User createUser() {
         return user;
-    }
-
-    @Container
-    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.3.0")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
-
-    @DynamicPropertySource
-    static void registerMysqlProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysqlContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", mysqlContainer::getUsername);
-        registry.add("spring.datasource.password", mysqlContainer::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create");
-        registry.add("spring.datasource.driver-class-name", mysqlContainer::getDriverClassName);
     }
 
     @BeforeEach
@@ -61,15 +44,4 @@ public class AbstractIntegrationTest {
 
         testEntityManager.persist(user);
     }
-
-    @BeforeAll
-    public static void startContainer() {
-        mysqlContainer.start();
-    }
-
-    @AfterAll
-    public static void stopContainer() {
-        mysqlContainer.stop();
-    }
-
 }
