@@ -10,12 +10,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AuthenticatedUser implements UserDetails {
+public class AuthUser extends User implements UserDetails {
 
     private final User user;
 
-    public AuthenticatedUser(User user) {
+    public AuthUser(User user) {
         this.user = user;
+        this.setEmail(user.getEmail());
+        this.setFirstName(user.getFirstName());
+        this.setLastName(user.getLastName());
+        this.setPassword(user.getPassword());
+        this.setActive(user.getActive());
+        this.setEmailVerified(user.getEmailVerified());
+        this.setRoles(user.getRoles());
+        this.setUsername(user.getUsername());
+        this.setId(user.getId());
     }
 
     @Override
@@ -54,6 +63,12 @@ public class AuthenticatedUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getActive();
     }
+
+    public User getUser() {
+        return user;
+    }
+
+
 }
