@@ -3,7 +3,7 @@ package com.auth.demo.service;
 import com.auth.demo.dto.ProfileRequest;
 import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.model.User;
-import com.auth.demo.security.AuthenticatedUser;
+import com.auth.demo.security.AuthUser;
 
 public interface UserService {
     User findByUsername(String username);
@@ -24,7 +24,7 @@ public interface UserService {
 
     boolean isUsernameExistsAndUserIdNotExists(String username, Long id);
 
-    ProfileResponse getProfile(AuthenticatedUser currentUser);
+    ProfileResponse getProfile(AuthUser authUser);
 
-    ProfileResponse updateProfile(AuthenticatedUser currentUser, ProfileRequest profileRequest);
+    ProfileResponse updateProfile(AuthUser authUser, ProfileRequest profileRequest);
 }

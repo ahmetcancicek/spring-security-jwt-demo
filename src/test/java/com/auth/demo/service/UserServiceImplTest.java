@@ -6,14 +6,12 @@ import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.exception.BusinessException;
 import com.auth.demo.model.User;
 import com.auth.demo.repository.UserRepository;
-import com.auth.demo.security.AuthenticatedUser;
+import com.auth.demo.security.AuthUser;
 import com.auth.demo.util.ProfileRequestBuilder;
 import com.auth.demo.util.UserBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -208,7 +206,7 @@ class UserServiceImplTest {
     @Test
     public void givenExistingUser_whenGetProfile_thenReturnUserProfile() {
         User user = UserBuilder.generate().build();
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+        AuthUser authenticatedUser = new AuthUser(user);
         given(userRepository.findByUsername(any(String.class))).willReturn(Optional.of(user));
 
         ProfileResponse profile = userService.getProfile(authenticatedUser);
@@ -223,7 +221,7 @@ class UserServiceImplTest {
     @Test
     public void givenExistingUser_whenUpdateProfile_thenReturnSavedProfile() {
         User user = UserBuilder.generate().build();
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+        AuthUser authenticatedUser = new AuthUser(user);
         ProfileRequest profileRequest = ProfileRequestBuilder
                 .generate()
                 .withFirstName(user.getFirstName())

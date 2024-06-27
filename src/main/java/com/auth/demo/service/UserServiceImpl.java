@@ -3,19 +3,13 @@ package com.auth.demo.service;
 import com.auth.demo.converter.UserConverter;
 import com.auth.demo.dto.ProfileRequest;
 import com.auth.demo.dto.ProfileResponse;
-import com.auth.demo.dto.RegisterRequest;
 import com.auth.demo.exception.BusinessException;
-import com.auth.demo.model.Role;
 import com.auth.demo.model.User;
 import com.auth.demo.repository.UserRepository;
-import com.auth.demo.security.AuthenticatedUser;
-import io.swagger.v3.oas.annotations.servers.Server;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.auth.demo.security.AuthUser;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -80,21 +74,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ProfileResponse getProfile(AuthenticatedUser currentUser) {
-        return userRepository.findByUsername(currentUser.getUsername())
+    public ProfileResponse getProfile(AuthUser authUser) {
+        return userRepository.findByUsername(authUser.getUsername())
                 .map(userConverter::fromUserToProfileResponse)
-                .orElseThrow(() -> new BusinessException("user.notFound"));
+                .orElseThrow(() -> new UsernameNotFoundException("user.notFound"));
     }
 
     @Override
-    public ProfileResponse updateProfile(AuthenticatedUser currentUser, ProfileRequest profileRequest) {
-        return userRepository.findByUsername(currentUser.getUsername())
+    public ProfileResponse updateProfile(AuthUser authUser, ProfileRequest profileRequest) {
+        return userRepository.findByUsername(authUser.getUsername())
                 .map(user -> {
-                    user.setFirstName(profileRequest.fistName());
+                    user.setFirstName(profileRequest.firstName());
                     user.setLastName(profileRequest.lastName());
                     return userRepository.save(user);
                 })
                 .map(userConverter::fromUserToProfileResponse)
-                .orElseThrow(() -> new BusinessException("user.notFound"));
+                .orElseThrow(() -> new UsernameNotFoundException("user.notFound"));
     }
 }
