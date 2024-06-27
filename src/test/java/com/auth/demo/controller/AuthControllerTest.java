@@ -4,7 +4,9 @@ import com.auth.demo.dto.LoginRequest;
 import com.auth.demo.dto.LoginResponse;
 import com.auth.demo.dto.RegisterRequest;
 import com.auth.demo.dto.RegisterResponse;
+import com.auth.demo.security.JwtProvider;
 import com.auth.demo.service.AuthService;
+import com.auth.demo.service.UserDetailsServiceImpl;
 import com.auth.demo.util.LoginRequestBuilder;
 import com.auth.demo.util.LoginResponseBuilder;
 import com.auth.demo.util.RegisterRequestBuilder;
@@ -42,6 +44,12 @@ class AuthControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @BeforeEach
     void setUp() {
