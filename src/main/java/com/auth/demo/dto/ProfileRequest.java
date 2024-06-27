@@ -9,7 +9,7 @@ public record ProfileRequest(
 
         @NotBlank
         @Size(min = 3, max = 32)
-        String fistName,
+        String firstName,
 
         @NotBlank
         @Size(min = 3, max = 32)
