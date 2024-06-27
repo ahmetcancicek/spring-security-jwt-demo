@@ -43,6 +43,14 @@ public class Role {
         return this.name.equals(RoleName.ROLE_ADMIN);
     }
 
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
