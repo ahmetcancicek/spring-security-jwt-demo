@@ -66,4 +66,15 @@ class RefreshTokenRepositoryIT extends AbstractIntegrationTest {
 
         assertThat(expected).isNull();
     }
+
+    @Test
+    public void whenDeleteByUserUsername_thenRefreshTokenDeleted() {
+        RefreshToken refreshToken = createRefreshToken();
+        testEntityManager.persist(refreshToken);
+
+        refreshTokenRepository.deleteByUserUsername(refreshToken.getUser().getUsername());
+        RefreshToken expected = testEntityManager.find(RefreshToken.class, refreshToken.getId());
+
+        assertThat(expected).isNull();
+    }
 }
