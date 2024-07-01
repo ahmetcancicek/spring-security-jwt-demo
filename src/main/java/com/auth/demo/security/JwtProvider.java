@@ -1,9 +1,11 @@
 package com.auth.demo.security;
 
+import com.auth.demo.service.UserDetailsServiceImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,11 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class JwtProvider {
 
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
+
 
     public JwtProvider(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
         this.jwtEncoder = jwtEncoder;
@@ -25,16 +28,14 @@ public class JwtProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        AuthUser principal = (AuthUser) authentication.getPrincipal();
-        var now = Instant.now();
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
 
-        // TODO: Check the claim properties
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
-                .issuedAt(now)
-                .expiresAt(now.plus(10, ChronoUnit.HOURS))
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plus(10, ChronoUnit.HOURS))
                 .subject(((AuthUser) authentication.getPrincipal()).getUser().getUsername())
-                .claim("authorities", "ROLE_USER")
+                .claim("authorities", getUserAuthorities(authUser))
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
@@ -51,5 +52,12 @@ public class JwtProvider {
         return Arrays.stream(claims.get("authorities").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    private String getUserAuthorities(AuthUser authUser) {
+        return authUser.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 }
