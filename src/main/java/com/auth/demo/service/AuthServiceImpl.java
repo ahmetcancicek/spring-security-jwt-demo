@@ -5,6 +5,7 @@ import com.auth.demo.dto.LoginRequest;
 import com.auth.demo.dto.LoginResponse;
 import com.auth.demo.dto.RegisterRequest;
 import com.auth.demo.dto.RegisterResponse;
+import com.auth.demo.model.RefreshToken;
 import com.auth.demo.model.Role;
 import com.auth.demo.model.User;
 import com.auth.demo.security.AuthUser;
@@ -31,17 +32,20 @@ public class AuthServiceImpl implements AuthService {
     private final UserConverter userConverter;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final RoleService roleService;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
-    private RoleService roleService;
 
-    public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService) {
+
+    public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService, RefreshTokenService refreshTokenService) {
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.roleService = roleService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -87,11 +91,23 @@ public class AuthServiceImpl implements AuthService {
         log.info("Logged in user returned: [{}]", authenticatedUser.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
         // Generate access token
         String accessToken = jwtProvider.generateToken(authentication);
 
-        // TODO: Generate the refresh token
-        return new LoginResponse(accessToken, "", "", null);
+        // Generate refresh token
+        String refreshToken = createRefreshToken(authenticatedUser).getToken();
+
+        return new LoginResponse(accessToken, refreshToken, "Bearer", jwtProvider.getExpiryDuration());
+    }
+
+    @Override
+    public RefreshToken createRefreshToken(AuthUser authUser) {
+        User user = authUser.getUser();
+        refreshTokenService.deleteByUsername(user.getUsername());
+
+        RefreshToken refreshToken = refreshTokenService.generateToken();
+        refreshToken.setUser(user);
+        refreshTokenService.save(refreshToken);
+        return refreshToken;
     }
 }

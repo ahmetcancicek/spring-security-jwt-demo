@@ -29,6 +29,7 @@ class AuthServiceImplTest {
     private UserService userService;
 
     private RoleService roleService;
+    private RefreshTokenService refreshTokenService;
 
     private AuthenticationManager authenticationManager;
 
@@ -43,8 +44,9 @@ class AuthServiceImplTest {
         authenticationManager = Mockito.mock(AuthenticationManager.class);
         jwtProvider = Mockito.mock(JwtProvider.class);
         roleService = Mockito.mock(RoleService.class);
+        refreshTokenService = Mockito.mock(RefreshTokenService.class);
         userConverter = new UserConverter();
-        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, authenticationManager, jwtProvider, roleService);
+        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, authenticationManager, jwtProvider, roleService, refreshTokenService);
     }
 
     @Test
@@ -86,4 +88,9 @@ class AuthServiceImplTest {
     void givenValidCredentials_whenLogin_thenReturnToken() {
 
     }
+
+    @Test
+    void givenAuthenticated_whenCreateRefreshToken_thenReturnRefreshToken() {
+    }
+
 }
