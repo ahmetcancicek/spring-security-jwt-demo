@@ -68,6 +68,10 @@ public class RefreshToken extends BaseEntity {
         this.user = user;
     }
 
+    public void incrementRefreshCount() {
+        refreshCount++;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
