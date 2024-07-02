@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,7 +29,10 @@ class AuthServiceImplTest {
 
     private UserService userService;
 
+    private EmailVerificationTokenService emailVerificationTokenService;
+
     private RoleService roleService;
+
     private RefreshTokenService refreshTokenService;
 
     private AuthenticationManager authenticationManager;
@@ -37,6 +41,8 @@ class AuthServiceImplTest {
 
     private UserConverter userConverter;
 
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @BeforeEach
     void setUp() {
         passwordEncoder = Mockito.mock(PasswordEncoder.class);
@@ -44,9 +50,11 @@ class AuthServiceImplTest {
         authenticationManager = Mockito.mock(AuthenticationManager.class);
         jwtProvider = Mockito.mock(JwtProvider.class);
         roleService = Mockito.mock(RoleService.class);
+        emailVerificationTokenService = Mockito.mock(EmailVerificationTokenService.class);
         refreshTokenService = Mockito.mock(RefreshTokenService.class);
         userConverter = new UserConverter();
-        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, authenticationManager, jwtProvider, roleService, refreshTokenService);
+        applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, authenticationManager, jwtProvider, roleService, refreshTokenService, emailVerificationTokenService, applicationEventPublisher);
     }
 
     @Test

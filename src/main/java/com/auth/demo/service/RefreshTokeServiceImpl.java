@@ -28,7 +28,7 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken findByToken(String token) {
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BusinessException("refresh.token.notFound"));
+                .orElseThrow(() -> new BusinessException("user.refreshTokenNotFound"));
     }
 
     @Transactional
@@ -43,6 +43,7 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setToken(Util.generateRandomUUID());
         refreshToken.setRefreshCount(0);
+        logger.info("Refresh token generated: [{}]", refreshToken);
         return refreshToken;
     }
 
@@ -51,19 +52,25 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
     public void verifyExpiration(RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.deleteById(refreshToken.getId());
-            throw new BusinessException("refresh.token.expired");
+            logger.error("Refresh token expired: [{}]", refreshToken);
+            throw new BusinessException("user.refreshTokenExpired");
         }
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
+        refreshTokenRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("user.refreshTokenNotFound"));
+
+        logger.info("Delete refresh token: [{}]", id);
         refreshTokenRepository.deleteById(id);
     }
 
     @Transactional
     @Override
     public void increaseCount(RefreshToken refreshToken) {
+        logger.info("Increase refresh token count: [{}]", refreshToken);
         refreshToken.incrementRefreshCount();
         save(refreshToken);
     }

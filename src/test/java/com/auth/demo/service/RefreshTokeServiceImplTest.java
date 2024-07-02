@@ -9,8 +9,9 @@ import com.auth.demo.util.UserBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -23,11 +24,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class RefreshTokeServiceImplTest {
 
+    @Mock
     private RefreshTokenRepository refreshTokenRepository;
-    private RefreshTokenService refreshTokenService;
+
+    @InjectMocks
+    private RefreshTokeServiceImpl refreshTokenService;
 
     private User user;
     private String token;
@@ -35,9 +39,6 @@ class RefreshTokeServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        refreshTokenRepository = Mockito.mock(RefreshTokenRepository.class);
-        refreshTokenService = new RefreshTokeServiceImpl(refreshTokenRepository);
-
         user = UserBuilder.generate().build();
         token = UUID.randomUUID().toString();
         refreshToken = RefreshTokenBuilder.generate()
@@ -88,6 +89,9 @@ class RefreshTokeServiceImplTest {
 
     @Test
     void givenRefreshTokenId_whenDeleteById_thenDeletedRefreshToken() {
+        // given
+        given(refreshTokenRepository.findById(any(Long.class))).willReturn(Optional.ofNullable(refreshToken));
+
         // when
         refreshTokenService.deleteById(refreshToken.getId());
 

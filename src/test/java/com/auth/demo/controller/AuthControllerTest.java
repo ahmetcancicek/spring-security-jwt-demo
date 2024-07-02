@@ -95,4 +95,14 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.data.refreshToken").value(loginResponse.refreshToken()))
                 .andDo(print());
     }
+
+    @Test
+    void givenValidRefreshToken_whenRefreshToken_thenReturnNewAccessToken() throws Exception {
+
+    }
+
+    @Test
+    void givenValidEmailVerificationToken_whenConfirmRegistration_thenReturnConfirmResponse() {
+
+    }
 }
