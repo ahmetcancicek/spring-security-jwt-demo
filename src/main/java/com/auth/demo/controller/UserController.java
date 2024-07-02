@@ -29,7 +29,7 @@ public class UserController extends BaseController {
         return respond(userService.getProfile(authenticatedUser));
     }
 
-    @PostMapping("/me")
+    @PutMapping("/me")
     @Operation(summary = "Update the authenticated user profile", description = "This method updates the authenticated user profile and returns new values")
     public Response<ProfileResponse> updateProfile(@AuthenticatedUser AuthUser authenticatedUser,
                                                    @Valid @RequestBody ProfileRequest profileRequest) {
