@@ -5,6 +5,17 @@ The purpose of this project is to provide an example of how to implement secure 
 authorization. On the other hand, the demo application demonstrates providing authentication and
 authorization without using a third-party token library.
 
+## Technologies
+
+* Spring Boot
+* MySQL
+* Testcontainers
+* Docker
+* Maven
+* Swagger
+* Spring Data JPA
+* Spring Security
+
 ## Docker
 
 To run the application using Docker, you can use the provided Dockerfile with docker-compose.yml:
@@ -39,19 +50,43 @@ openssl rsa -pubout -in private-key.pem -out public-key.pem
 
 ## API Endpoints
 
-| Method | Endpoint              | Description                          | Headers                                                           | Request Body                                                                                                     | Response |
-|--------|-----------------------|--------------------------------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|----------|
-| POST   | /api/v1/auth/register | Register a new user                  | Content-Type: application/json                                    | `{ "username": "String", "email": "String", "password": "String", "firstName": "String", "lastName": "String" }` |          |
-| POST   | /api/v1/auth/login    | Authenticate a user and get a token  | Content-Type: application/json                                    | `{ "username": "String", "password": "String" }`                                                                 |          |
-| POST   | /api/v1/auth/refresh  | Generate a new token                 | Content-Type: application/json                                    | `{ "refreshToken": "String"}`                                                                                    |          |
-| GET    | /api/v1/users/me      | Get the authenticated user's info    | Authorization: Bearer <jwt-token>                                 | None                                                                                                             |          |
-| POST   | /api/v1/users/me      | Update the authenticated user's info | Authorization: Bearer <jwt-token>, Content-Type: application/json | `{ "firstName": "String", "lastName": "String" }`                                                                |          |
+**Swagger:** [localhost:8080/swagger-ui.html](localhost:8080/swagger-ui.html)
 
-## Example Usage
+### Authentication
 
-### Register a New User
+#### Register a New User
 
-**Curl Command**
+* URL: `/api/auth/register`
+* Method: `POST`
+* Request Body:
+
+```json
+{
+  "email": "billwilson@email.com",
+  "username": "billwilson",
+  "password": "12345",
+  "registerAsAdmin": true,
+  "firstName": "Bill",
+  "lastName": "Wilson"
+}
+```
+
+* Response:
+
+```json
+{
+  "data": {
+    "email": "billwilson@email.com",
+    "username": "billwilson",
+    "emailVerified": false,
+    "active": true,
+    "firstName": "Bill",
+    "lastName": "Wilson"
+  }
+}
+```
+
+* **Request with Curl:**
 
 ```bash
 curl -H 'Content-Type: application/json' \
@@ -62,7 +97,31 @@ curl -H 'Content-Type: application/json' \
 
 ### User Login
 
-**Curl Command**
+* URL: `/api/auth/register`
+* Method: `POST`
+* Request Body:
+
+```json
+{
+  "username": "billwilson",
+  "password": "12345"
+}
+```
+
+* Response:
+
+```json
+{
+  "data": {
+    "accessToken": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYmlsbHdpbHNvbiIsImV4cCI6MTcxOTkzNzkzNCwiaWF0IjoxNzE5OTM3MDM0LCJhdXRob3JpdGllcyI6IlJPTEVfUk9MRV9BRE1JTixST0xFX1JPTEVfVVNFUiJ9.uagLQR1IxEXd0bQzmX_0ENshssxIobYudDRui7mtFC6d-P8dxQWBQPCnPr2-bzqvR33Q4TtVR851TLw8gRxRY-8m45uTtfeaTBm3jgDBXs81ZZgkqRWfcSLlpc-zEs2FzAYTm9idUu4-4yoC5wFU6lgqq0QjaeQCyAYElUGPeNmECK1849Ty8Vfn4j_yEjcMYMdZq5CENaJrOV4KMOHeLrHgEbD7jSV6b5VBL124AhORRyso6P0UiLzyoVlMOmJr5VTREUXJN78CfhkAyApYqP2SK4aQjxwHu3SZo1YV-eu8mXC-hHEG84L9MwStSkuCN8p5h82ZZLoySJujpXt7YQ",
+    "refreshToken": "b3b6d7f1-49aa-4e4a-b885-4f0442600cde",
+    "tokenType": "Bearer",
+    "expiryDuration": 900000
+  }
+}
+```
+
+* **Request with Curl:**
 
 ```bash
 curl -H 'Content-Type: application/json' \
@@ -73,7 +132,28 @@ curl -H 'Content-Type: application/json' \
 
 ### Get User Info
 
-**Curl Command**
+* URL: `/api/users/me`
+* Method: `GET`
+* Headers:
+
+```bash
+Authorization: Bearer <JWT_TOKEN>
+```
+
+* Response:
+
+```json
+{
+  "data": {
+    "email": "billwilson@email.com",
+    "username": "billwilson",
+    "firstName": "Bill",
+    "lastName": "Wilson"
+  }
+}
+```
+
+* **Request with Curl:**
 
 ```bash
 curl -H 'Content-Type: application/json' \
@@ -84,23 +164,101 @@ curl -H 'Content-Type: application/json' \
 
 ### Update User Info
 
-**Curl Command**
+* URL: `/api/auth/me`
+* Method: `PUT`
+* Headers:
+
+```bash
+Authorization: Bearer <JWT_TOKEN>
+```
+
+* Request Body:
+
+```json
+{
+  "firstName": "Bill",
+  "lastName": "Wilson"
+}
+```
+
+* Response:
+
+```json
+{
+  "data": {
+    "email": "billwilson@email.com",
+    "username": "billwilson",
+    "firstName": "Bill",
+    "lastName": "Wilson"
+  }
+}
+```
+
+* **Request with Curl:**
 
 ```bash
 curl -H 'Content-Type: application/json' \
      -H "Authorization: Bearer <ACCESS_TOKEN>" \
  -d '{"firstName":"Bill","lastName":"Wilson"}' \
-  -X POST \
+  -X PUT \
    http://localhost:8080/api/v1/users/me 
 ```
 
 ### Refresh Token
 
-**Curl Command**
+* URL: `/api/auth/refresh`
+* Method: `POST`
+* Request Body:
+
+```json
+{
+  "refreshToken": "b3b6d7f1-49aa-4e4a-b885-4f0442600cde"
+}
+```
+
+* Response:
+
+```json
+{
+  "data": {
+    "accessToken": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYmlsbHdpbHNvbiIsImV4cCI6MTcxOTkzODUyMCwiaWF0IjoxNzE5OTM3NjIwLCJhdXRob3JpdGllcyI6IlJPTEVfUk9MRV9BRE1JTixST0xFX1JPTEVfVVNFUiJ9.T_ROURHd6k_d66VXEPwKpFtQ9HakvsTdY4pHsnd4YCtitImP72V_XFK8F3tGp0Ycqrx45nO03jOpcYQYWSkueKaKSDKB2ZG31xcuXTb-pFi-nl-aeFlN8VD9X59F-GrvvgCCVaLmrBIot4VUrwPdVc7SJmrBAhE7YkzAyzefTAdVaFYfyrmoL012tPjM94U-rdgMOkL537aAfbko0GI4SzpFl1R2NndHI2yfQD-kF4M2fieagUGnsGSTfJ-jYY0zOs9vPdX_-plb253ZhyOf04q8UwZ1e4EzGoUGJ1d_WfoBkeDvVtz8VWyj_Nv-INpY7KTlKZIv75pPlG_VU-l7IQ",
+    "refreshToken": "b3b6d7f1-49aa-4e4a-b885-4f0442600cde",
+    "tokenType": "Bearer",
+    "expiryDuration": 900000
+  }
+}
+```
+
+* **Request with Curl:**
 
 ```bash
 curl -H 'Content-Type: application/json' \
  -d '{"refreshToken": "<REFRESH_TOKEN>"}' \
   -X POST \
   localhost:8080/api/v1/auth/refresh
+```
+
+### Confirm Email
+
+* URL: `/api/auth/confirm?token=<REFRESH_TOKEN>`
+* Method: `POST`
+
+* Response:
+
+```json
+{
+  "data": {
+    "username": "billwilson",
+    "email": "billwilson@email.com",
+    "emailVerified": true
+  }
+}
+```
+
+* **Request with Curl:**
+
+```bash
+curl -H 'Accept: application/json' \
+  -X GET \
+  "localhost:8080/api/v1/auth/confirm?token=<REFRESH_TOKEN>"
 ```
