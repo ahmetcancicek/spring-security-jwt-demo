@@ -173,8 +173,8 @@ public class AuthServiceImpl implements AuthService {
         AuthUser authUser = new AuthUser(emailVerificationToken.getUser());
         User user = authUser.getUser();
         if (authUser.getEmailVerified()) {
-            log.info("Email verification token already exists for: [{}]", authUser.getUsername());
-            new ConfirmResponse(user.getUsername(), user.getEmail(), user.getEmailVerified());
+            log.info("Email verification token already verified for: [{}]", authUser.getUsername());
+            return new ConfirmResponse(user.getUsername(), user.getEmail(), user.getEmailVerified());
         }
 
         emailVerificationTokenService.verifyExpiration(emailVerificationToken);
