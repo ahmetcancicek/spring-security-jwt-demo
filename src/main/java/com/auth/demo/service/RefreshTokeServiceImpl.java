@@ -47,6 +47,7 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
     @Override
     public void verifyExpiration(RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
+            refreshTokenRepository.deleteById(refreshToken.getId());
             throw new BusinessException("refresh.token.expired");
         }
     }
@@ -66,5 +67,4 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
     public void deleteByUsername(String username) {
         refreshTokenRepository.deleteByUserUsername(username);
     }
-
 }
