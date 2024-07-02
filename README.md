@@ -43,6 +43,7 @@ openssl rsa -pubout -in private-key.pem -out public-key.pem
 |--------|-----------------------|--------------------------------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|----------|
 | POST   | /api/v1/auth/register | Register a new user                  | Content-Type: application/json                                    | `{ "username": "String", "email": "String", "password": "String", "firstName": "String", "lastName": "String" }` |          |
 | POST   | /api/v1/auth/login    | Authenticate a user and get a token  | Content-Type: application/json                                    | `{ "username": "String", "password": "String" }`                                                                 |          |
+| POST   | /api/v1/auth/refresh  | Generate a new token                 | Content-Type: application/json                                    | `{ "refreshToken": "String"}`                                                                                    |          |
 | GET    | /api/v1/users/me      | Get the authenticated user's info    | Authorization: Bearer <jwt-token>                                 | None                                                                                                             |          |
 | POST   | /api/v1/users/me      | Update the authenticated user's info | Authorization: Bearer <jwt-token>, Content-Type: application/json | `{ "firstName": "String", "lastName": "String" }`                                                                |          |
 
@@ -91,4 +92,15 @@ curl -H 'Content-Type: application/json' \
  -d '{"firstName":"Bill","lastName":"Wilson"}' \
   -X POST \
    http://localhost:8080/api/v1/users/me 
+```
+
+### Refresh Token
+
+**Curl Command**
+
+```bash
+curl -H 'Content-Type: application/json' \
+ -d '{"refreshToken": "<REFRESH_TOKEN>"}' \
+  -X POST \
+  localhost:8080/api/v1/auth/refresh
 ```
