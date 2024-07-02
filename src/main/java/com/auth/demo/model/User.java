@@ -49,6 +49,10 @@ public class User extends BaseEntity {
         super();
     }
 
+    public void markVerificationConfirmed() {
+        setEmailVerified(true);
+    }
+
 
     public void setId(Long id) {
         this.id = id;
