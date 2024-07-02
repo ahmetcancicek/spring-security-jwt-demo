@@ -1,9 +1,6 @@
 package com.auth.demo.controller;
 
-import com.auth.demo.dto.LoginRequest;
-import com.auth.demo.dto.LoginResponse;
-import com.auth.demo.dto.RegisterRequest;
-import com.auth.demo.dto.RegisterResponse;
+import com.auth.demo.dto.*;
 import com.auth.demo.response.Response;
 import com.auth.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +32,11 @@ public class AuthController extends BaseController {
     @Operation(summary = "Login the existing user", description = "This method can be used to login operation for user and it returns the authentication tokens")
     public Response<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return respond(authService.login(loginRequest));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Generate a new token", description = "This method creates a new token for the expired token authentication")
+    public Response<LoginResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        return respond(authService.refreshToken(tokenRefreshRequest));
     }
 }

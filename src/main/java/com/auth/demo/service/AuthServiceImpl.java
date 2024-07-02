@@ -1,10 +1,7 @@
 package com.auth.demo.service;
 
 import com.auth.demo.converter.UserConverter;
-import com.auth.demo.dto.LoginRequest;
-import com.auth.demo.dto.LoginResponse;
-import com.auth.demo.dto.RegisterRequest;
-import com.auth.demo.dto.RegisterResponse;
+import com.auth.demo.dto.*;
 import com.auth.demo.model.RefreshToken;
 import com.auth.demo.model.Role;
 import com.auth.demo.model.User;
@@ -79,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
+    @Transactional
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
@@ -92,22 +90,45 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Generate access token
-        String accessToken = jwtProvider.generateToken(authentication);
+        String accessToken = jwtProvider.generateToken(authenticatedUser);
+        log.info("Generated access token for: [{}]", authenticatedUser.getUsername());
 
         // Generate refresh token
-        String refreshToken = createRefreshToken(authenticatedUser).getToken();
+        String refreshToken = createAndSaveRefreshToken(authenticatedUser).getToken();
+        log.info("Generated refresh token for: [{}]", authenticatedUser.getUsername());
 
         return new LoginResponse(accessToken, refreshToken, "Bearer", jwtProvider.getExpiryDuration());
     }
 
+    @Transactional
     @Override
-    public RefreshToken createRefreshToken(AuthUser authUser) {
+    public RefreshToken createAndSaveRefreshToken(AuthUser authUser) {
         User user = authUser.getUser();
+
+        // Deleted old refresh token
         refreshTokenService.deleteByUsername(user.getUsername());
 
+        // Create new refresh token
         RefreshToken refreshToken = refreshTokenService.generateToken();
         refreshToken.setUser(user);
         refreshTokenService.save(refreshToken);
+
         return refreshToken;
+    }
+
+    @Override
+    public LoginResponse refreshToken(TokenRefreshRequest tokenRefreshRequest) {
+        String refreshToken = tokenRefreshRequest.refreshToken();
+
+        // Find refresh token
+        RefreshToken existedRefreshToken = refreshTokenService.findByToken(refreshToken);
+        refreshTokenService.verifyExpiration(existedRefreshToken);
+        refreshTokenService.increaseCount(existedRefreshToken);
+
+        // Generate access token
+        AuthUser authUser = new AuthUser(existedRefreshToken.getUser());
+        String accessToken = jwtProvider.generateToken(authUser);
+
+        return new LoginResponse(accessToken, refreshToken, "Bearer", jwtProvider.getExpiryDuration());
     }
 }

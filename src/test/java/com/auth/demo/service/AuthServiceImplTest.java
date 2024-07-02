@@ -90,7 +90,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void givenAuthenticated_whenCreateRefreshToken_thenReturnRefreshToken() {
+    void givenAuthenticated_whenRefreshToken_thenReturnRefreshToken() {
     }
 
 }

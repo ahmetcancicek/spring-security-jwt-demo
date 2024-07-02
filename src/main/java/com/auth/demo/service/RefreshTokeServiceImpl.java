@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -30,6 +31,7 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
                 .orElseThrow(() -> new BusinessException("refresh.token.notFound"));
     }
 
+    @Transactional
     @Override
     public RefreshToken save(RefreshToken refreshToken) {
         return refreshTokenRepository.save(refreshToken);
@@ -44,6 +46,7 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
         return refreshToken;
     }
 
+    @Transactional
     @Override
     public void verifyExpiration(RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
@@ -52,17 +55,20 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         refreshTokenRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public void increaseCount(RefreshToken refreshToken) {
         refreshToken.incrementRefreshCount();
         save(refreshToken);
     }
 
+    @Transactional
     @Override
     public void deleteByUsername(String username) {
         refreshTokenRepository.deleteByUserUsername(username);

@@ -1,8 +1,6 @@
 package com.auth.demo.security;
 
-import com.auth.demo.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
@@ -30,9 +28,7 @@ public class JwtProvider {
         this.jwtDecoder = jwtDecoder;
     }
 
-    public String generateToken(Authentication authentication) {
-        AuthUser authUser = (AuthUser) authentication.getPrincipal();
-
+    public String generateToken(AuthUser authUser) {
         // Convert milliseconds to Duration
         Duration duration = Duration.ofMillis(jwtExpirationInMs);
         // Add duration to current instant
@@ -42,7 +38,7 @@ public class JwtProvider {
                 .issuer("self")
                 .issuedAt(Instant.now())
                 .expiresAt(futureInstant)
-                .subject(((AuthUser) authentication.getPrincipal()).getUser().getUsername())
+                .subject(authUser.getUser().getUsername())
                 .claim("authorities", getUserAuthorities(authUser))
                 .build();
 

@@ -1,9 +1,6 @@
 package com.auth.demo.service;
 
-import com.auth.demo.dto.LoginRequest;
-import com.auth.demo.dto.LoginResponse;
-import com.auth.demo.dto.RegisterRequest;
-import com.auth.demo.dto.RegisterResponse;
+import com.auth.demo.dto.*;
 import com.auth.demo.model.RefreshToken;
 import com.auth.demo.security.AuthUser;
 
@@ -12,5 +9,7 @@ public interface AuthService {
 
     LoginResponse login(LoginRequest loginRequest);
 
-    RefreshToken createRefreshToken(AuthUser authUser);
+    RefreshToken createAndSaveRefreshToken(AuthUser authUser);
+
+    LoginResponse refreshToken(TokenRefreshRequest tokenRefreshRequest);
 }
