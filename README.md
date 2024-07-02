@@ -241,7 +241,7 @@ curl -H 'Content-Type: application/json' \
 ### Confirm Email
 
 * URL: `/api/auth/confirm?token=<REFRESH_TOKEN>`
-* Method: `POST`
+* Method: `GET`
 
 * Response:
 
