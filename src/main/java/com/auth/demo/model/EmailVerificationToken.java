@@ -18,7 +18,7 @@ public class EmailVerificationToken extends BaseEntity {
     @Column(name = "token", length = 255, nullable = false, unique = true)
     private String token;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
@@ -39,6 +39,10 @@ public class EmailVerificationToken extends BaseEntity {
         this.user = user;
         this.expiryDate = expiryDate;
         this.tokenStatus = tokenStatus;
+    }
+
+    public void setConfirmedStatus() {
+        setTokenStatus(TokenStatus.STATUS_CONFIRMED);
     }
 
     public void setId(Long id) {
