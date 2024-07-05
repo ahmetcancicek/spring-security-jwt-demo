@@ -42,4 +42,16 @@ public class AuthController extends BaseController {
     public Response<ConfirmResponse> confirmRegistration(@RequestParam("token") String token) {
         return respond(authService.confirmEmailRegistration(token));
     }
+
+    @GetMapping("/checkEmailInUse")
+    @Operation(summary = "Checks if the email exists", description = "This method checks whether the email already exists or not")
+    public Response<EmailCheckResponse> checkEmailInUse(@RequestParam("email") String email) {
+        return respond(new EmailCheckResponse(authService.isExistsByEmail(email), email));
+    }
+
+    @GetMapping("/checkUsernameInUse")
+    @Operation(summary = "Checks if the username exists", description = "This method checks whether the username already exists or nor")
+    public Response<UsernameCheckResponse> checkUsernameInUse(@RequestParam("username") String username) {
+        return respond(new UsernameCheckResponse(authService.isExistsByUsername(username), username));
+    }
 }
