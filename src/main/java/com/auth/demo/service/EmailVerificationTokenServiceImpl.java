@@ -39,13 +39,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 
     @Override
     public EmailVerificationToken createAndSaveVerificationToken(User user) {
-        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
-        emailVerificationToken.setUser(user);
-        emailVerificationToken.setToken(generateNewToken());
-        emailVerificationToken.setTokenStatus(TokenStatus.STATUS_PENDING);
-        emailVerificationToken.setExpiryDate(Instant.now().plusMillis(emailVerificationTokenExpiryDuration));
-        log.info("Email verification token created [{}]", emailVerificationToken);
-        return emailVerificationTokenRepository.save(emailVerificationToken);
+        return saveVerificationToken(user, generateNewToken());
     }
 
     @Override
