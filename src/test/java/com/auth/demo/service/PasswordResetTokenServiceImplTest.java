@@ -69,6 +69,15 @@ class PasswordResetTokenServiceImplTest {
         assertThat(expected).isEqualTo(passwordResetToken);
     }
 
+    @Test
+    void givenExistingPasswordResetToken_whenClaimToken_thenReturnPasswordResetTokenAsClaimed() {
+        PasswordResetToken expected = passwordResetTokenService.claimToken(passwordResetToken);
+
+
+        verify(passwordResetTokenRepository, times(1)).updatePasswordResetTokenStatusByUser(any(Boolean.class), any(User.class));
+        assertThat(expected.getClaimed()).isEqualTo(true);
+    }
+
 
     @Test
     void givenExpiredToken_whenVerifyExpiration_thenThrowException() {
@@ -116,9 +125,10 @@ class PasswordResetTokenServiceImplTest {
                 .build();
         given(passwordResetTokenRepository.findByToken(any(String.class))).willReturn(Optional.ofNullable(passwordResetToken));
 
-        passwordResetTokenService.getValidToken(passwordResetRequest);
+        PasswordResetToken expected = passwordResetTokenService.getValidToken(passwordResetRequest);
 
         verify(passwordResetTokenRepository, times(1)).findByToken(any(String.class));
+        assertThat(expected).isEqualTo(passwordResetToken);
     }
 
     @Test

@@ -9,15 +9,18 @@ import com.auth.demo.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
+@Service
 public class PasswordResetTokenServiceImpl implements PasswordResetTokenService {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResetTokenServiceImpl.class);
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    @Value("app.token.password.reset.duration")
+    @Value("${app.token.password.reset.duration}")
     private Long expiration;
 
     public PasswordResetTokenServiceImpl(PasswordResetTokenRepository passwordResetTokenRepository) {
@@ -34,6 +37,18 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         passwordResetToken.setActive(true);
         passwordResetToken.setExpiryDate(Instant.now().plusMillis(expiration));
         return passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    @Transactional
+    @Override
+    public PasswordResetToken claimToken(PasswordResetToken passwordResetToken) {
+        User user = passwordResetToken.getUser();
+        passwordResetToken.setClaimed(true);
+        // TODO: All password reset token that belongs to user must be claimed
+
+        passwordResetTokenRepository.updatePasswordResetTokenStatusByUser(false, user);
+
+        return passwordResetToken;
     }
 
     @Override

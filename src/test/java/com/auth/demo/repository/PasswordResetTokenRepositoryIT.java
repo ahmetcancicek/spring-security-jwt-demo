@@ -1,10 +1,7 @@
 package com.auth.demo.repository;
 
-import com.auth.demo.model.EmailVerificationToken;
 import com.auth.demo.model.PasswordResetToken;
-import com.auth.demo.model.TokenStatus;
 import com.auth.demo.model.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,13 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordResetTokenRepositoryIT extends AbstractIntegrationTest {
 
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
-    
+
     private PasswordResetToken createPasswordResetToken() {
         PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setUser(createUser());
@@ -71,5 +67,26 @@ class PasswordResetTokenRepositoryIT extends AbstractIntegrationTest {
 
 
         assertThat(expected).isNull();
+    }
+
+    @Test
+    public void whenUpdatePasswordResetTokenStatusByUser_thenPasswordResetTokenUpdated() throws InterruptedException {
+        // given
+        PasswordResetToken passwordResetToken = createPasswordResetToken();
+        testEntityManager.persist(passwordResetToken);
+
+        User user = createPasswordResetToken().getUser();
+
+        // when
+        int updatedRows = passwordResetTokenRepository.updatePasswordResetTokenStatusByUser(false, user);
+        testEntityManager.flush();
+        testEntityManager.clear();  // Clear the persistence context to fetch the latest state
+
+        // then
+        PasswordResetToken updatedToken = testEntityManager.find(PasswordResetToken.class, passwordResetToken.getId());
+
+        assertThat(updatedRows).isGreaterThan(0);
+        assertThat(updatedToken).isNotNull();
+        assertThat(updatedToken.getActive()).isFalse();
     }
 }

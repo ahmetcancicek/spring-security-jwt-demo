@@ -7,6 +7,8 @@ import com.auth.demo.model.User;
 public interface PasswordResetTokenService {
     PasswordResetToken createAndSavePasswordResetToken(User user);
 
+    PasswordResetToken claimToken(PasswordResetToken passwordResetToken);
+
     void verifyExpiration(PasswordResetToken passwordResetToken);
 
     void matchEmail(PasswordResetToken passwordResetToken, String requestEmail);
