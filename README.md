@@ -56,7 +56,7 @@ openssl rsa -pubout -in private-key.pem -out public-key.pem
 
 #### Register a New User
 
-* URL: `/api/auth/register`
+* URL: `/api/v1/auth/register`
 * Method: `POST`
 * Request Body:
 
@@ -97,7 +97,7 @@ curl -H 'Content-Type: application/json' \
 
 ### User Login
 
-* URL: `/api/auth/register`
+* URL: `/api/v1/auth/register`
 * Method: `POST`
 * Request Body:
 
@@ -132,7 +132,7 @@ curl -H 'Content-Type: application/json' \
 
 ### Get User Info
 
-* URL: `/api/users/me`
+* URL: `/api/v1/users/me`
 * Method: `GET`
 * Headers:
 
@@ -164,7 +164,7 @@ curl -H 'Content-Type: application/json' \
 
 ### Update User Info
 
-* URL: `/api/auth/me`
+* URL: `/api/v1/auth/me`
 * Method: `PUT`
 * Headers:
 
@@ -206,7 +206,7 @@ curl -H 'Content-Type: application/json' \
 
 ### Refresh Token
 
-* URL: `/api/auth/refresh`
+* URL: `/api/auth/v1/refresh`
 * Method: `POST`
 * Request Body:
 
@@ -240,7 +240,7 @@ curl -H 'Content-Type: application/json' \
 
 ### Confirm Email
 
-* URL: `/api/auth/confirm?token=<REFRESH_TOKEN>`
+* URL: `/api/auth/v1/confirm?token=<REFRESH_TOKEN>`
 * Method: `GET`
 
 * Response:
@@ -261,4 +261,63 @@ curl -H 'Content-Type: application/json' \
 curl -H 'Accept: application/json' \
   -X GET \
   "localhost:8080/api/v1/auth/confirm?token=<REFRESH_TOKEN>"
+```
+
+### Check Email In Use
+
+* URL: `/api/v1/auth/checkEmailInUse?email=<EMAIL>`
+* Method: `GET`
+* Response:
+
+```json
+{
+  "data": {
+    "isEmailInUse": true,
+    "email": "billwilson@email.com"
+  }
+}
+```
+
+* **Request with Curl:**
+
+```bash
+curl -H 'Accept: application/json' \
+  -X GET \
+  "localhost:8080/api/v1/auth/checkEmailInUse?email=<EMAIL>"  
+```
+
+### Check Username In Use
+
+* URL: `/api/v1/auth/checkUsernameInUse?username=<USERNAME>`
+* Method: `GET`
+* Response:
+
+```json
+{
+  "data": {
+    "isUsernameInUse": true,
+    "username": "billwilson"
+  }
+}
+```
+
+* **Request with Curl:**
+
+```bash
+curl -H 'Accept: application/json' \
+  -X GET \
+  "localhost:8080/api/v1/auth/checkUsernameInUse?username=<USERNAME>"  
+```
+
+### Resend Email Token
+
+* URL: `/api/v1/auth/resendRegistrationToken?token=<TOKEN>`
+* Method: `GET`
+
+
+* **Request with Curl:**
+
+```bash
+curl -X GET \
+  "localhost:8080/api/v1/auth/resendRegistrationToken?token=<TOKEN>"
 ```
