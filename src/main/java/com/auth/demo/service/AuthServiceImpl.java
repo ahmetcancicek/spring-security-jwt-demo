@@ -2,6 +2,8 @@ package com.auth.demo.service;
 
 import com.auth.demo.converter.UserConverter;
 import com.auth.demo.dto.*;
+import com.auth.demo.event.PasswordResetCompletedEvent;
+import com.auth.demo.event.PasswordResetLinkEvent;
 import com.auth.demo.event.UserRegistrationEvent;
 import com.auth.demo.exception.BusinessException;
 import com.auth.demo.model.*;
@@ -33,15 +35,17 @@ public class AuthServiceImpl implements AuthService {
     private final RoleService roleService;
     private final RefreshTokenService refreshTokenService;
     private final EmailVerificationTokenService emailVerificationTokenService;
+    private final PasswordResetTokenService passwordResetTokenService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService, RefreshTokenService refreshTokenService, EmailVerificationTokenService emailVerificationTokenService, ApplicationEventPublisher applicationEventPublisher) {
+    public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, PasswordResetTokenService passwordResetTokenService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService, RefreshTokenService refreshTokenService, EmailVerificationTokenService emailVerificationTokenService, ApplicationEventPublisher applicationEventPublisher) {
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.roleService = roleService;
@@ -78,12 +82,12 @@ public class AuthServiceImpl implements AuthService {
     private void checkEmailOrUsernameAlreadyExists(String email, String username) {
         if (isExistsByEmail(email)) {
             log.error("Email already exists: [{}]", email);
-            throw new BusinessException("user.emailAlreadyExists: [{}]", email);
+            throw new BusinessException("user.emailAlreadyExists");
         }
 
         if (isExistsByUsername(username)) {
             log.error("Email already exists: [{}]", username);
-            throw new BusinessException("user.usernameAlreadyExists: [{}]", username);
+            throw new BusinessException("user.usernameAlreadyExists");
         }
     }
 
@@ -206,5 +210,34 @@ public class AuthServiceImpl implements AuthService {
         // Publish event to email user for email confirmation
         UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(user, newToken);
         applicationEventPublisher.publishEvent(userRegistrationEvent);
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(PasswordResetRequest resetRequest) {
+        PasswordResetToken passwordResetToken = passwordResetTokenService.getValidToken(resetRequest);
+        final String encodedPassword = passwordEncoder.encode(resetRequest.confirmPassword());
+
+        passwordResetTokenService.claimToken(passwordResetToken);
+
+        User user = passwordResetToken.getUser();
+        user.setPassword(encodedPassword);
+        userService.save(user);
+
+        // Publish an event for successful message
+        PasswordResetCompletedEvent passwordResetCompletedEvent = new PasswordResetCompletedEvent(user);
+        applicationEventPublisher.publishEvent(passwordResetCompletedEvent);
+    }
+
+
+    public void resetLink(PasswordResetLinkRequest linkRequest) {
+        String email = linkRequest.email();
+        User user = userService.findByEmail(email);
+        PasswordResetToken passwordResetToken = passwordResetTokenService.createAndSavePasswordResetToken(user);
+        String link = "" + passwordResetToken.getToken();
+
+        // Publish an event for sending reset link to the user
+        PasswordResetLinkEvent passwordResetLinkEvent = new PasswordResetLinkEvent(user, link);
+        applicationEventPublisher.publishEvent(passwordResetLinkEvent);
     }
 }

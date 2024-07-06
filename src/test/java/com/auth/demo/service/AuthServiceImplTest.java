@@ -35,6 +35,8 @@ class AuthServiceImplTest {
 
     private RefreshTokenService refreshTokenService;
 
+    private PasswordResetTokenService passwordResetTokenService;
+
     private AuthenticationManager authenticationManager;
 
     private JwtProvider jwtProvider;
@@ -52,9 +54,10 @@ class AuthServiceImplTest {
         roleService = Mockito.mock(RoleService.class);
         emailVerificationTokenService = Mockito.mock(EmailVerificationTokenService.class);
         refreshTokenService = Mockito.mock(RefreshTokenService.class);
+        passwordResetTokenService = Mockito.mock(PasswordResetTokenService.class);
         userConverter = new UserConverter();
         applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
-        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, authenticationManager, jwtProvider, roleService, refreshTokenService, emailVerificationTokenService, applicationEventPublisher);
+        authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, passwordResetTokenService, authenticationManager, jwtProvider, roleService, refreshTokenService, emailVerificationTokenService, applicationEventPublisher);
     }
 
     @Test

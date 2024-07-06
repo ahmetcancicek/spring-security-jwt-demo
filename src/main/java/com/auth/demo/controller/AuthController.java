@@ -60,4 +60,16 @@ public class AuthController extends BaseController {
     public void resendRegistrationToken(@RequestParam("token") String token) {
         authService.resendRegistrationToken(token);
     }
+
+    @Operation(summary = "", description = "")
+    @PostMapping("/password/reset")
+    public void resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        authService.resetPassword(passwordResetRequest);
+    }
+
+    @Operation(summary = "", description = "")
+    @PostMapping("/password/resetlink")
+    public void resetLink(@Valid @RequestBody PasswordResetLinkRequest passwordResetLinkRequest) {
+        authService.resetLink(passwordResetLinkRequest);
+    }
 }

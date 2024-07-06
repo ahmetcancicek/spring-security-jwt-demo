@@ -23,4 +23,8 @@ public interface AuthService {
     boolean isExistsByEmail(String email);
 
     void resendRegistrationToken(String existingToken);
+
+    void resetPassword(PasswordResetRequest resetRequest);
+
+    void resetLink(PasswordResetLinkRequest linkRequest);
 }
