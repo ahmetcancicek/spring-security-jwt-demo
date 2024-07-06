@@ -61,13 +61,13 @@ public class AuthController extends BaseController {
         authService.resendRegistrationToken(token);
     }
 
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Reset the password", description = "This method reset the password after token verification and publish an event to send")
     @PostMapping("/password/reset")
     public void resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         authService.resetPassword(passwordResetRequest);
     }
 
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Send an reset link", description = "This method create an send reset link with password reset token and publish an event to send")
     @PostMapping("/password/resetlink")
     public void resetLink(@Valid @RequestBody PasswordResetLinkRequest passwordResetLinkRequest) {
         authService.resetLink(passwordResetLinkRequest);
