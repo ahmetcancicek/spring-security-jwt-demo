@@ -54,4 +54,10 @@ public class AuthController extends BaseController {
     public Response<UsernameCheckResponse> checkUsernameInUse(@RequestParam("username") String username) {
         return respond(new UsernameCheckResponse(authService.isExistsByUsername(username), username));
     }
+
+    @GetMapping("/resendRegistrationToken")
+    @Operation(summary = "Resend the email registration token", description = "This method resend the email registration token with updating expiry date if expired")
+    public void resendRegistrationToken(@RequestParam("token") String token) {
+        authService.resendRegistrationToken(token);
+    }
 }

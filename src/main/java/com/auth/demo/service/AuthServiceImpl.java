@@ -4,10 +4,7 @@ import com.auth.demo.converter.UserConverter;
 import com.auth.demo.dto.*;
 import com.auth.demo.event.UserRegistrationEvent;
 import com.auth.demo.exception.BusinessException;
-import com.auth.demo.model.EmailVerificationToken;
-import com.auth.demo.model.RefreshToken;
-import com.auth.demo.model.Role;
-import com.auth.demo.model.User;
+import com.auth.demo.model.*;
 import com.auth.demo.security.AuthUser;
 import com.auth.demo.security.JwtProvider;
 import org.slf4j.Logger;
@@ -199,4 +196,15 @@ public class AuthServiceImpl implements AuthService {
         return emailVerificationTokenService.updateExistingToken(emailVerificationToken);
     }
 
+
+    @Override
+    public void resendRegistrationToken(String existingToken) {
+        EmailVerificationToken emailVerificationToken = recreateRegistrationToken(existingToken);
+        User user = emailVerificationToken.getUser();
+        String newToken = emailVerificationToken.getToken();
+
+        // Publish event to email user for email confirmation
+        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(user, newToken);
+        applicationEventPublisher.publishEvent(userRegistrationEvent);
+    }
 }

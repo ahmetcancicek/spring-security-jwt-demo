@@ -16,11 +16,11 @@ public class Response<T> {
         this.data = data;
     }
 
-    public T getData() {
-        return data;
+    public ErrorResponse getErrors() {
+        return errors;
     }
 
-    public void setData(T data) {
-        this.data = data;
+    public T getData() {
+        return data;
     }
 }

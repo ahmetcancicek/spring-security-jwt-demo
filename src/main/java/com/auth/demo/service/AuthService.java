@@ -21,4 +21,6 @@ public interface AuthService {
     boolean isExistsByUsername(String username);
 
     boolean isExistsByEmail(String email);
+
+    void resendRegistrationToken(String existingToken);
 }
