@@ -63,7 +63,7 @@ public class AuthUser extends User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getActive();
+        return user.getActive() && user.getEmailVerified();
     }
 
     public User getUser() {

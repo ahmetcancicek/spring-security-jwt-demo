@@ -1,7 +1,6 @@
-package com.auth.demo.publisher;
+package com.auth.demo.listener;
 
 import com.auth.demo.event.UserRegistrationEvent;
-import com.auth.demo.service.EmailVerificationTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -9,11 +8,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RegistrationEventPublisher implements ApplicationListener<UserRegistrationEvent> {
+public class UserRegistrationEventListener implements ApplicationListener<UserRegistrationEvent> {
 
-    private static final Logger log = LoggerFactory.getLogger(RegistrationEventPublisher.class);
+    private static final Logger log = LoggerFactory.getLogger(UserRegistrationEventListener.class);
 
-    public RegistrationEventPublisher() {
+    public UserRegistrationEventListener() {
     }
 
     @Async

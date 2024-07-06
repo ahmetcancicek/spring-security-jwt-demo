@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,6 +44,12 @@ public class ApiExceptionHandler extends BaseController {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Response<ErrorResponse> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException exception, Locale locale) {
         return createErrorResponseFromMessageSource("client.methodNotSupported", locale, exception.getMethod());
+    }
+
+    @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+    @ExceptionHandler(DisabledException.class)
+    public Response<ErrorResponse> handleDisabledException(DisabledException exception, Locale locale) {
+        return respond(new ErrorResponse(HttpStatus.FORBIDDEN.toString(), exception.getMessage()));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
