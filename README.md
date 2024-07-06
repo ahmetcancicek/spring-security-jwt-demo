@@ -321,3 +321,50 @@ curl -H 'Accept: application/json' \
 curl -X GET \
   "localhost:8080/api/v1/auth/resendRegistrationToken?token=<TOKEN>"
 ```
+
+### Password Reset Link
+
+* URL: `/api/v1/auth/password/resetlink`
+* Method: `POST`
+* Request Body:
+
+```json
+{
+    "email":"billwilson@email.com"
+}
+```
+
+* **Request with Curl:**
+
+```bash
+curl -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+  -d '{"email":"billwilson@email.com"}' \
+   -X POST \
+  http://localhost:8080/api/v1/auth/password/resetlink
+```
+
+### Password Reset
+
+* URL: `/api/v1/auth/password/reset`
+* Method: `POST`
+* Request Body: 
+
+```json
+{
+    "email":"billwilson@email.com",
+    "password":"12345",
+    "confirmPassword":"12345",
+    "token":"af95616a-388e-4249-add1-a64577266fdd"
+}
+```
+
+
+* **Request with Curl:**
+
+```bash
+curl -H 'Content-Type: application/json' \
+  -d '{"email":"billwilson@email.com","password":"12345","confirmPassword":"12345","token":"af95616a-388e-4249-add1-a64577266fdd"}' \
+   -X POST \
+  http://localhost:8080/api/v1/auth/password/reset
+```
