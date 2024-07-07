@@ -60,7 +60,11 @@ class EmailVerificationTokenServiceImplTest {
     @Test
     void givenUserAndToken_whenSaveVerificationToken_thenReturnToken() {
         // given
-        given(emailVerificationTokenRepository.save(any(EmailVerificationToken.class))).willReturn(emailVerificationToken);
+        given(emailVerificationTokenRepository.save(any(EmailVerificationToken.class))).willAnswer(invocation -> {
+            EmailVerificationToken savedToken = invocation.getArgument(0);
+            savedToken.setId(1L); // Simulate the database setting the ID
+            return savedToken;
+        });
 
         // when
         EmailVerificationToken expected = emailVerificationTokenService.saveVerificationToken(user, token);
@@ -73,8 +77,13 @@ class EmailVerificationTokenServiceImplTest {
     @Test
     void givenUserAndToken_whenCreateAndSaveVerificationToken_thenReturnToken() {
         // given
-        given(emailVerificationTokenRepository.save(any(EmailVerificationToken.class))).willReturn(emailVerificationToken);
-
+        given(emailVerificationTokenRepository.save(any(EmailVerificationToken.class))).willAnswer(invocation -> {
+            EmailVerificationToken savedToken = invocation.getArgument(0);
+            savedToken.setToken(emailVerificationToken.getToken());
+            savedToken.setId(1L);
+            return savedToken;
+        });
+        
         // when
         EmailVerificationToken expected = emailVerificationTokenService.createAndSaveVerificationToken(user);
 

@@ -36,18 +36,17 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         passwordResetToken.setClaimed(false);
         passwordResetToken.setActive(true);
         passwordResetToken.setExpiryDate(Instant.now().plusMillis(expiration));
-        return passwordResetTokenRepository.save(passwordResetToken);
+        passwordResetTokenRepository.save(passwordResetToken);
+        log.info("Created password reset token: {}", token);
+        return passwordResetToken;
     }
-
-    @Transactional
+    
     @Override
     public PasswordResetToken claimToken(PasswordResetToken passwordResetToken) {
         User user = passwordResetToken.getUser();
         passwordResetToken.setClaimed(true);
-        // TODO: All password reset token that belongs to user must be claimed
-
         passwordResetTokenRepository.updatePasswordResetTokenStatusByUser(false, user);
-
+        log.info("Claimed password reset token: {}", passwordResetToken);
         return passwordResetToken;
     }
 

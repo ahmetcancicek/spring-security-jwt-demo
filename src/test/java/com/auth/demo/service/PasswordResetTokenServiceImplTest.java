@@ -59,7 +59,13 @@ class PasswordResetTokenServiceImplTest {
     @Test
     void givenUser_whenCreateAndSavePasswordResetToken_thenReturnToken() {
         // given
-        given(passwordResetTokenRepository.save(any(PasswordResetToken.class))).willReturn(passwordResetToken);
+        given(passwordResetTokenRepository.save(any(PasswordResetToken.class))).willAnswer(i -> {
+            PasswordResetToken savedToken = i.getArgument(0);
+            savedToken.setToken(passwordResetToken.getToken());
+            savedToken.setExpiryDate(passwordResetToken.getExpiryDate());
+            savedToken.setId(1L);
+            return savedToken;
+        });
 
         // when
         PasswordResetToken expected = passwordResetTokenService.createAndSavePasswordResetToken(user);

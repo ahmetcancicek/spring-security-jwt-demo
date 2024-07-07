@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -31,10 +30,11 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
                 .orElseThrow(() -> new BusinessException("user.refreshTokenNotFound"));
     }
 
-    @Transactional
     @Override
     public RefreshToken save(RefreshToken refreshToken) {
-        return refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(refreshToken);
+        logger.info("Save refresh token {}", refreshToken);
+        return refreshToken;
     }
 
     @Override
@@ -47,7 +47,6 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
         return refreshToken;
     }
 
-    @Transactional
     @Override
     public void verifyExpiration(RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
@@ -57,27 +56,24 @@ public class RefreshTokeServiceImpl implements RefreshTokenService {
         }
     }
 
-    @Transactional
     @Override
     public void deleteById(Long id) {
         refreshTokenRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("user.refreshTokenNotFound"));
-
-        logger.info("Delete refresh token: [{}]", id);
         refreshTokenRepository.deleteById(id);
+        logger.info("Deleted refresh token: [{}]", id);
     }
 
-    @Transactional
     @Override
     public void increaseCount(RefreshToken refreshToken) {
-        logger.info("Increase refresh token count: [{}]", refreshToken);
         refreshToken.incrementRefreshCount();
         save(refreshToken);
+        logger.info("Increase refresh token count: [{}]", refreshToken);
     }
 
-    @Transactional
     @Override
     public void deleteByUsername(String username) {
         refreshTokenRepository.deleteByUserUsername(username);
+        logger.info("Deleted refresh token: [{}]", username);
     }
 }

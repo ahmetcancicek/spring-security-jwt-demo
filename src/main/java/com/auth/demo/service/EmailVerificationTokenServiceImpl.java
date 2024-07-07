@@ -33,8 +33,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
         emailVerificationToken.setToken(token);
         emailVerificationToken.setTokenStatus(TokenStatus.STATUS_PENDING);
         emailVerificationToken.setExpiryDate(Instant.now().plusMillis(emailVerificationTokenExpiryDuration));
-        log.info("Email verification token created [{}]", emailVerificationToken);
-        return emailVerificationTokenRepository.save(emailVerificationToken);
+        return save(emailVerificationToken);
     }
 
     @Override
@@ -57,8 +56,10 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
     }
 
     @Override
-    public EmailVerificationToken save(EmailVerificationToken token) {
-        return emailVerificationTokenRepository.save(token);
+    public EmailVerificationToken save(EmailVerificationToken emailVerificationToken) {
+        emailVerificationTokenRepository.save(emailVerificationToken);
+        log.info("Email verification token created [{}]", emailVerificationToken);
+        return emailVerificationToken;
     }
 
     @Override
@@ -67,8 +68,9 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
     }
 
     @Override
-    public void verifyExpiration(EmailVerificationToken token) {
-        if (token.getExpiryDate().isBefore(Instant.now())) {
+    public void verifyExpiration(EmailVerificationToken emailVerificationToken) {
+        if (emailVerificationToken.getExpiryDate().isBefore(Instant.now())) {
+            log.error("Email verification token [{}] expired", emailVerificationToken);
             throw new BusinessException("user.emailTokenExpired");
         }
     }
