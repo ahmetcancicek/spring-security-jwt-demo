@@ -7,6 +7,8 @@ import com.auth.demo.exception.BusinessException;
 import com.auth.demo.model.User;
 import com.auth.demo.repository.UserRepository;
 import com.auth.demo.security.AuthUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final UserConverter userConverter;
@@ -45,7 +48,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User save(User user) {
-        return userRepository.save(user);
+        userRepository.save(user);
+        log.info("Saved user: {}", user);
+        return user;
     }
 
     @Override
@@ -86,7 +91,9 @@ public class UserServiceImpl implements UserService {
                 .map(user -> {
                     user.setFirstName(profileRequest.firstName());
                     user.setLastName(profileRequest.lastName());
-                    return userRepository.save(user);
+                    userRepository.save(user);
+                    log.info("Updated profile: {}", user);
+                    return user;
                 })
                 .map(userConverter::fromUserToProfileResponse)
                 .orElseThrow(() -> new UsernameNotFoundException("user.notFound"));
