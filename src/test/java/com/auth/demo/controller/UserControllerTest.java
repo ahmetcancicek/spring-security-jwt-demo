@@ -3,6 +3,7 @@ package com.auth.demo.controller;
 import com.auth.demo.dto.ProfileRequest;
 import com.auth.demo.dto.ProfileResponse;
 import com.auth.demo.security.JwtProvider;
+import com.auth.demo.security.JwtValidator;
 import com.auth.demo.service.UserDetailsServiceImpl;
 import com.auth.demo.service.UserService;
 import com.auth.demo.util.ProfileRequestBuilder;
@@ -21,8 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +48,9 @@ class UserControllerTest {
 
     @MockBean
     private UserDetailsServiceImpl userDetailsService;
+
+    @MockBean
+    private JwtValidator jwtValidator;
 
     @BeforeEach
     void setUp() {
@@ -87,7 +90,7 @@ class UserControllerTest {
 
         given(userService.updateProfile(any(), any())).willReturn(profileResponse);
 
-        mockMvc.perform(post("/api/v1/users/me")
+        mockMvc.perform(put("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(profileRequest)))
