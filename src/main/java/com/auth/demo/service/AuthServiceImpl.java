@@ -40,7 +40,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtProvider jwtProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-
     public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, PasswordResetTokenService passwordResetTokenService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService, RefreshTokenService refreshTokenService, EmailVerificationTokenService emailVerificationTokenService, ApplicationEventPublisher applicationEventPublisher) {
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
@@ -60,23 +59,31 @@ public class AuthServiceImpl implements AuthService {
         // Checks if given email already exists in the database
         checkEmailOrUsernameAlreadyExists(registerRequest.email(), registerRequest.username());
 
+        // Create and save user account
+        User savedUser = createUser(registerRequest);
+
+        // Generate email verification token and publish
+        createEmailVerificationTokenAndPublish(savedUser);
+
+        // Return the response
+        return userConverter.fromUserToRegisterResponse(savedUser);
+    }
+
+    private void createEmailVerificationTokenAndPublish(User savedUser) {
+        EmailVerificationToken emailVerificationToken = emailVerificationTokenService.createAndSaveVerificationToken(savedUser);
+        String token = emailVerificationToken.getToken();
+        // Publish event to email user for email confirmation
+        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(savedUser, token);
+        applicationEventPublisher.publishEvent(userRegistrationEvent);
+    }
+
+    private User createUser(RegisterRequest registerRequest) {
         User user = userConverter.fromRegisterRequestToUser(registerRequest);
         user.setActive(true);
         user.setEmailVerified(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(getRolesForNewUser(registerRequest.registerAsAdmin()));
-        User savedUser = userService.save(user);
-        log.info("Created new user and saved to db: [{}]", savedUser);
-
-
-        // Generate email verification token
-        EmailVerificationToken emailVerificationToken = emailVerificationTokenService.createAndSaveVerificationToken(user);
-        String token = emailVerificationToken.getToken();
-        // Publish event to email user for email confirmation
-        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(user, token);
-        applicationEventPublisher.publishEvent(userRegistrationEvent);
-
-        return userConverter.fromUserToRegisterResponse(savedUser);
+        return userService.save(user);
     }
 
     private void checkEmailOrUsernameAlreadyExists(String email, String username) {
@@ -91,6 +98,15 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    private Set<Role> getRolesForNewUser(boolean isToBeMadeAdmin) {
+        Set<Role> newUserRoles = new HashSet<>(roleService.findAll());
+        if (!isToBeMadeAdmin)
+            newUserRoles.removeIf(Role::isAdminRole);
+
+        log.info("Setting user roles: {}", newUserRoles);
+        return newUserRoles;
+    }
+
     @Override
     public boolean isExistsByUsername(String username) {
         return userService.existsByUsername(username);
@@ -101,17 +117,6 @@ public class AuthServiceImpl implements AuthService {
         return userService.existsByEmail(email);
     }
 
-    private Set<Role> getRolesForNewUser(boolean isToBeMadeAdmin) {
-        Set<Role> newUserRoles = new HashSet<>(roleService.findAll());
-        if (!isToBeMadeAdmin)
-            newUserRoles.removeIf(Role::isAdminRole);
-
-        log.info("Setting user roles: {}", newUserRoles);
-        return newUserRoles;
-    }
-
-
-    @Transactional
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
@@ -135,7 +140,6 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(accessToken, refreshToken, "Bearer", jwtProvider.getExpiryDuration());
     }
 
-    @Transactional
     @Override
     public RefreshToken createAndSaveRefreshToken(AuthUser authUser) {
         User user = authUser.getUser();
@@ -170,22 +174,25 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ConfirmResponse confirmEmailRegistration(String token) {
         EmailVerificationToken emailVerificationToken = emailVerificationTokenService.findByToken(token);
+        User user = emailVerificationToken.getUser();
 
-        AuthUser authUser = new AuthUser(emailVerificationToken.getUser());
-        User user = authUser.getUser();
-        if (authUser.getEmailVerified()) {
-            log.info("Email verification token already verified for: [{}]", authUser.getUsername());
+        // Check if email verification token has already verified
+        if (user.getEmailVerified()) {
+            log.info("Email verification token already verified for: [{}]", user.getUsername());
             return new ConfirmResponse(user.getUsername(), user.getEmail(), user.getEmailVerified());
         }
 
+        // Verify and update the existing verification token
         emailVerificationTokenService.verifyExpiration(emailVerificationToken);
         emailVerificationToken.setConfirmedStatus();
         emailVerificationTokenService.save(emailVerificationToken);
 
+        // Mark user's token as confirmed
         user.markVerificationConfirmed();
         userService.save(user);
-        log.info("Email verification token confirmed: [{}]", authUser.getUsername());
 
+
+        log.info("Email verification token confirmed: [{}]", user.getUsername());
         return new ConfirmResponse(user.getUsername(), user.getEmail(), user.getEmailVerified());
     }
 
@@ -212,14 +219,17 @@ public class AuthServiceImpl implements AuthService {
         applicationEventPublisher.publishEvent(userRegistrationEvent);
     }
 
-    @Transactional
     @Override
     public void resetPassword(PasswordResetRequest resetRequest) {
+        // Check if the password reset token is valid
         PasswordResetToken passwordResetToken = passwordResetTokenService.getValidToken(resetRequest);
-        final String encodedPassword = passwordEncoder.encode(resetRequest.confirmPassword());
 
+        // Claim the password reset token
         passwordResetTokenService.claimToken(passwordResetToken);
 
+        // Encode new password
+        final String encodedPassword = passwordEncoder.encode(resetRequest.confirmPassword());
+        // Update user
         User user = passwordResetToken.getUser();
         user.setPassword(encodedPassword);
         userService.save(user);
@@ -229,12 +239,17 @@ public class AuthServiceImpl implements AuthService {
         applicationEventPublisher.publishEvent(passwordResetCompletedEvent);
     }
 
-
     public void resetLink(PasswordResetLinkRequest linkRequest) {
+        // Get an email from request
         String email = linkRequest.email();
+
+        // Get user and create token for verification
         User user = userService.findByEmail(email);
         PasswordResetToken passwordResetToken = passwordResetTokenService.createAndSavePasswordResetToken(user);
-        String link = "" + passwordResetToken.getToken();
+
+        // Create link
+        // TODO: Create link more generic to send with an email
+        String link = "http://localhost:8080/api/v1/auth/resetlink?token=" + passwordResetToken.getToken();
 
         // Publish an event for sending reset link to the user
         PasswordResetLinkEvent passwordResetLinkEvent = new PasswordResetLinkEvent(user, link);
