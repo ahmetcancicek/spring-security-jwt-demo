@@ -11,6 +11,7 @@ import com.auth.demo.security.AuthUser;
 import com.auth.demo.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,6 +40,12 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    @Value("${app.mail.confirm}")
+    private String verificationURL;
+
+    @Value("${app.mail.password.resetlink}")
+    private String passwordResetURL;
 
     public AuthServiceImpl(UserConverter userConverter, PasswordEncoder passwordEncoder, UserService userService, PasswordResetTokenService passwordResetTokenService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, RoleService roleService, RefreshTokenService refreshTokenService, EmailVerificationTokenService emailVerificationTokenService, ApplicationEventPublisher applicationEventPublisher) {
         this.userConverter = userConverter;
@@ -72,9 +79,17 @@ public class AuthServiceImpl implements AuthService {
     private void createEmailVerificationTokenAndPublish(User savedUser) {
         EmailVerificationToken emailVerificationToken = emailVerificationTokenService.createAndSaveVerificationToken(savedUser);
         String token = emailVerificationToken.getToken();
+        String URL = createVerificationURL(token);
         // Publish event to email user for email confirmation
-        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(savedUser, token);
+        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(savedUser, URL);
         applicationEventPublisher.publishEvent(userRegistrationEvent);
+    }
+
+    private String createVerificationURL(String token) {
+        StringBuilder url;
+        url = new StringBuilder(verificationURL);
+        url.append("?token=").append(token);
+        return url.toString();
     }
 
     private User createUser(RegisterRequest registerRequest) {
@@ -213,9 +228,10 @@ public class AuthServiceImpl implements AuthService {
         EmailVerificationToken emailVerificationToken = recreateRegistrationToken(existingToken);
         User user = emailVerificationToken.getUser();
         String newToken = emailVerificationToken.getToken();
+        String URL = createVerificationURL(newToken);
 
         // Publish event to email user for email confirmation
-        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(user, newToken);
+        UserRegistrationEvent userRegistrationEvent = new UserRegistrationEvent(user, URL);
         applicationEventPublisher.publishEvent(userRegistrationEvent);
     }
 
@@ -245,14 +261,15 @@ public class AuthServiceImpl implements AuthService {
 
         // Get user and create token for verification
         User user = userService.findByEmail(email);
+        String name = user.getFirstName();
         PasswordResetToken passwordResetToken = passwordResetTokenService.createAndSavePasswordResetToken(user);
 
         // Create link
-        // TODO: Create link more generic to send with an email
-        String link = "http://localhost:8080/api/v1/auth/resetlink?token=" + passwordResetToken.getToken();
+        StringBuilder url = new StringBuilder(passwordResetURL);
+        url.append("?token").append("=").append(passwordResetToken.getToken());
 
         // Publish an event for sending reset link to the user
-        PasswordResetLinkEvent passwordResetLinkEvent = new PasswordResetLinkEvent(user, link);
+        PasswordResetLinkEvent passwordResetLinkEvent = new PasswordResetLinkEvent(user, url.toString());
         applicationEventPublisher.publishEvent(passwordResetLinkEvent);
     }
 }

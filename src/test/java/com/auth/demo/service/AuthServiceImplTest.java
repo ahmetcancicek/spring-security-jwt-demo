@@ -18,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -59,6 +60,8 @@ class AuthServiceImplTest {
 
     @BeforeEach
     void setUp() {
+
+
         passwordEncoder = Mockito.mock(PasswordEncoder.class);
         userService = Mockito.mock(UserService.class);
         authenticationManager = Mockito.mock(AuthenticationManager.class);
@@ -71,6 +74,8 @@ class AuthServiceImplTest {
         applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
         authService = new AuthServiceImpl(userConverter, passwordEncoder, userService, passwordResetTokenService, authenticationManager, jwtProvider, roleService, refreshTokenService, emailVerificationTokenService, applicationEventPublisher);
 
+        // Add the Resources parameter
+        ReflectionTestUtils.setField(authService, "verificationURL", "http://localhost:8080/api/v1/auth/confirm");
 
         user = UserBuilder.generate().build();
         emailVerificationToken = EmailVerificationTokenBuilder

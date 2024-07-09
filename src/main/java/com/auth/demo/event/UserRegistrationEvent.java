@@ -7,13 +7,13 @@ import org.springframework.context.ApplicationEvent;
 public class UserRegistrationEvent extends ApplicationEvent {
 
     private User user;
-    private String token;
+    private String verificationURL;
 
 
-    public UserRegistrationEvent(User user, String token) {
+    public UserRegistrationEvent(User user, String verificationURL) {
         super(user);
         this.user = user;
-        this.token = token;
+        this.verificationURL = verificationURL;
     }
 
     public User getUser() {
@@ -24,11 +24,11 @@ public class UserRegistrationEvent extends ApplicationEvent {
         this.user = user;
     }
 
-    public String getToken() {
-        return token;
+    public String getVerificationURL() {
+        return verificationURL;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setVerificationURL(String verificationURL) {
+        this.verificationURL = verificationURL;
     }
 }

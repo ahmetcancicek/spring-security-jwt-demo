@@ -5,12 +5,12 @@ import org.springframework.context.ApplicationEvent;
 
 public class PasswordResetLinkEvent extends ApplicationEvent {
     private User user;
-    private String link;
+    private String passwordResetURL;
 
     public PasswordResetLinkEvent(User user, String link) {
         super(user);
         this.user = user;
-        this.link = link;
+        this.passwordResetURL = link;
     }
 
     public User getUser() {
@@ -20,12 +20,12 @@ public class PasswordResetLinkEvent extends ApplicationEvent {
     public void setUser(User user) {
         this.user = user;
     }
-
-    public String getLink() {
-        return link;
+    
+    public String getPasswordResetURL() {
+        return passwordResetURL;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setPasswordResetURL(String passwordResetURL) {
+        this.passwordResetURL = passwordResetURL;
     }
 }
