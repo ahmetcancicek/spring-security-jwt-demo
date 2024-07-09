@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<p>Dear [[${name}]],</p>
+<p>Please verify your email address by clicking on the following link:</p>
+<p><a th:href="@{${verificationURL}}">Verify Email</a></p>
+<p>Thank you!</p>
+</body>
+</html>
