@@ -76,6 +76,7 @@ class AuthServiceImplTest {
 
         // Add the Resources parameter
         ReflectionTestUtils.setField(authService, "verificationURL", "http://localhost:8080/api/v1/auth/confirm");
+        ReflectionTestUtils.setField(authService,"passwordResetURL","http://localhost:8080/api/v1/auth/password/reset");
 
         user = UserBuilder.generate().build();
         emailVerificationToken = EmailVerificationTokenBuilder

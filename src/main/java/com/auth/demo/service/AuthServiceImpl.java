@@ -132,6 +132,7 @@ public class AuthServiceImpl implements AuthService {
         return userService.existsByEmail(email);
     }
 
+    @Transactional
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager
@@ -235,6 +236,7 @@ public class AuthServiceImpl implements AuthService {
         applicationEventPublisher.publishEvent(userRegistrationEvent);
     }
 
+    @Transactional
     @Override
     public void resetPassword(PasswordResetRequest resetRequest) {
         // Check if the password reset token is valid
