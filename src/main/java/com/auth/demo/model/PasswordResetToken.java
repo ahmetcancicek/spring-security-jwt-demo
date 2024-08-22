@@ -6,7 +6,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "password_reset_token")
+@Table(name = "password_reset_token",indexes = {
+        @Index(name = "fn_token",columnList = "token")
+})
 public class PasswordResetToken extends BaseEntity {
 
     @Id

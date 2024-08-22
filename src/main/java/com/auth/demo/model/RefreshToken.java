@@ -6,7 +6,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "refresh_token")
+@Table(name = "refresh_token", indexes = {
+        @Index(name = "fn_token", columnList = "token")
+})
 public class RefreshToken extends BaseEntity {
 
     @Id

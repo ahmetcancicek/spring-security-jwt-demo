@@ -6,7 +6,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "email_verification_token")
+@Table(name = "email_verification_token", indexes = {
+        @Index(name = "fn_token", columnList = "token")
+})
 public class EmailVerificationToken extends BaseEntity {
 
     @Id

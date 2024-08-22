@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS users
     CONSTRAINT uc_users_username UNIQUE (username)
 ) ENGINE = INNODB;
 
+CREATE INDEX fn_email on users (email);
+CREATE INDEX fn_username on users (username);
+
 CREATE TABLE role_seq
 (
     next_val BIGINT NULL
@@ -71,6 +74,8 @@ CREATE TABLE IF NOT EXISTS email_verification_token
     CONSTRAINT fk_email_verification_token_on_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = INNODB;
 
+CREATE INDEX fn_token on email_verification_token (token);
+
 CREATE TABLE refresh_token_seq
 (
     next_val BIGINT NULL
@@ -89,6 +94,8 @@ CREATE TABLE IF NOT EXISTS refresh_token
     CONSTRAINT uc_refresh_token_token UNIQUE (token),
     CONSTRAINT fk_refresh_token_on_users FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = INNODB;
+
+CREATE INDEX fn_token on refresh_token (token);
 
 CREATE TABLE password_reset_token_seq
 (
@@ -109,3 +116,5 @@ CREATE TABLE IF NOT EXISTS password_reset_token
     CONSTRAINT uc_password_reset_token_token UNIQUE (token),
     CONSTRAINT fk_password_reset_token_on_users FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = INNODB;
+
+CREATE INDEX fn_token on password_reset_token (token);
