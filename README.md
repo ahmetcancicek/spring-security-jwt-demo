@@ -33,7 +33,7 @@ docker-compose up -d
 It is needed to build and run the application
 
 * Oracle JDK 17
-* Maven 3.9      
+* Maven 3.9
 * MySQL 8.3
 * Docker
 
@@ -41,6 +41,14 @@ Clone the project and use Maven to build the application
 
 ```bash
 mvn clean package 
+```
+
+## Running Tests
+
+To run the tests for this project, use the following command:
+
+```bash
+./mvnw test 
 ```
 
 ## Configuration
@@ -69,6 +77,21 @@ openssl genpkey -algorithm RSA -out private-key.pem
 openssl rsa -pubout -in private-key.pem -out public-key.pem
 ```
 
+### Mail Configuration
+
+The application requires mail configuration to be set for sending emails. The docker-compose.yml file includes
+environment variables for this purpose. You can customize the mail configuration by modifying the following variables in docker-compose.yml:
+
+* MYSQL_ROOT_PASSWORD
+* MAIL_HOST
+* MAIL_PORT
+* MAIL_USER
+* MAIL_PASSWORD
+* MAIL_PROTOCOL
+* MAIL_SMTP_AUTH
+* MAIL_SMTP_STARTTLS_ENABLE
+* MAIL_SMTP_STARTTLS_REQUIRED
+
 ## Running
 
 In order to run using embedded Apache Tomcat server use:
@@ -76,6 +99,9 @@ In order to run using embedded Apache Tomcat server use:
 ```bash
 java -jar target/spring-security-jwt-demo-0.0.1-SNAPSHOT.jar
 ```
+
+The application requires some configurations to be run consistently. Thus, the necessary configurations can be found in the application-dev.properties
+
 
 ## API Endpoints
 
@@ -178,3 +204,14 @@ curl -H 'Content-Type: application/json' \
    -X POST \
   http://localhost:8080/api/v1/auth/password/reset
 ```
+
+## Contributing
+
+If you'd like to contribute, please follow these steps:
+
+1. Fork the repository
+2. Clone your forked repository
+    3. Switch to the development branch named as dev
+4. Commit your changes with a descriptive commit message
+5. Push your changes to your forked repository
+6. Create a Pull Request
