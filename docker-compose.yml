@@ -10,6 +10,14 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USER: your-email@example.com
+      MAIL_PASSWORD: your-email-password
+      MAIL_PROTOCOL: smtp
+      MAIL_SMTP_AUTH: true
+      MAIL_SMTP_STARTTLS_ENABLE: true
+      MAIL_SMTP_STARTTLS_REQUIRED: true
     volumes:
       - ./db-init-scripts:/docker-entrypoint-initdb.d
       - database-data:/var/lib/mysql
