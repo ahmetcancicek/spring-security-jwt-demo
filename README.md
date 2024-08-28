@@ -211,7 +211,7 @@ If you'd like to contribute, please follow these steps:
 
 1. Fork the repository
 2. Clone your forked repository
-    3. Switch to the development branch named as dev
+3. Switch to the development branch named as dev
 4. Commit your changes with a descriptive commit message
 5. Push your changes to your forked repository
 6. Create a Pull Request
